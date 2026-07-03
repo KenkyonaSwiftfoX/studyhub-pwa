@@ -3,20 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EduMémos</title>
-    <link rel="manifest" href="./manifest.json" />
+    <meta
+      name="description"
+      content="Une Progressive Web App collaborative destinée aux étudiants, permettant le partage de ressources pédagogiques, les demandes d'aide, les annonces de groupe et les échanges autour des cours, tout en restant utilisable hors connexion et installable sur smartphone."
+    />
+    <title>Study Hub - Babillard Collaboratif</title>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#4f7cff" />
+
+    <!-- Support de l'installation sur iOS / Safari (le manifest seul n'y suffit pas) -->
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Study Hub" />
+
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.2.0/css/line.css"
+    />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./css/style.css" />
   </head>
 
   <body>
     <main class="container">
       <header class="header">
-        <h1>Le Flux d'Entraide de la Promo</h1>
-        <p>Conservez vos pensées et vos idées avec style</p>
+        <h1>STUDY HUB</h1>
+        <p>
+          Le babillard d’entraide de ta promo - En temps réel - Disponible hors
+          ligne
+        </p>
       </header>
 
       <section class="controls" aria-label="Recherche et filtres">
@@ -29,13 +48,14 @@
           />
           <div class="filter-group">
             <select id="filterSelect" class="filter-select">
-              <option value="all">Tous les mémos</option>
-              <option value="entraideProgrammation">
-                Entraide Programmation
-              </option>
+              <option value="all">Tous les notes</option>
+              <option value="entraide">Entraide</option>
               <option value="ressources">Ressources</option>
               <option value="infosPromo">Infos Promo</option>
               <option value="flashcards">Flashcards</option>
+              <option value="reunion">Réunion</option>
+              <option value="cours">Cours</option>
+              <option value="urgence">Urgence</option>
             </select>
             <button type="button" id="addNoteBtn" class="add-btn">
               <i class="fas fa-plus"></i> Partager
@@ -63,7 +83,7 @@
       <div id="addNoteModal" class="modal-overlay">
         <div class="modal">
           <div class="modal-header">
-            <h3 class="modal-title">Nouveau mémo</h3>
+            <h3 class="modal-title">Nouvelle note</h3>
             <button type="button" id="closeModalBtn" class="modal-close">
               <i class="fas fa-times"></i>
             </button>
@@ -71,7 +91,7 @@
 
           <form id="noteForm" class="modal-body">
             <div class="form-group">
-              <label for="noteTitle" class="form-label">Sujet du mémo</label>
+              <label for="noteTitle" class="form-label">Sujet de la note</label>
               <input type="text" id="noteTitle" class="form-input" required />
             </div>
             <div class="form-group">
@@ -90,22 +110,22 @@
                 <!-- Pour les blocages techniques -->
                 <label class="tag-option">
                   <input
-                    type="radio"
+                    type="checkbox"
                     name="noteTag"
-                    value="entraideProgrammation"
-                    class="tag-radio"
+                    value="entraide"
+                    class="tag-check"
                   />
-                  <span class="tag-label tag-entraideProgrammation">
-                    <i class="fas fa-briefcase"></i> Entraide Programmation
-                  </span>
+                  <span class="tag-label tag-entraide"
+                    ><i class="fas fa-briefcase"></i>Entraide</span
+                  >
                 </label>
                 <!-- Pour partager des liens vers des documentations, des vidéos, des outils -->
                 <label class="tag-option">
                   <input
-                    type="radio"
+                    type="checkbox"
                     name="noteTag"
                     value="ressources"
-                    class="tag-radio"
+                    class="tag-check"
                   />
                   <span class="tag-label tag-ressources">
                     <i class="fas fa-user"></i> Ressources
@@ -114,10 +134,10 @@
                 <!-- Pour les changements de salles, les dates de rendus de projets, les rappels -->
                 <label class="tag-option">
                   <input
-                    type="radio"
+                    type="checkbox"
                     name="noteTag"
                     value="infosPromo"
-                    class="tag-radio"
+                    class="tag-check"
                     checked
                   />
                   <span class="tag-label tag-infosPromo">
@@ -127,19 +147,74 @@
                 <!-- Pour partager des fiches de révisions rapides avant un examen -->
                 <label class="tag-option">
                   <input
-                    type="radio"
+                    type="checkbox"
                     name="noteTag"
                     value="flashcards"
-                    class="tag-radio"
+                    class="tag-check"
                   />
                   <span class="tag-label tag-flashcards">
-                    <i class="fas fa-bell"></i> Flashcards
+                    <i class="fa-layer-group"></i> Flashcards
+                  </span>
+                </label>
+                <!-- Pour planification ou rappel de réunion -->
+                <label class="tag-option">
+                  <input
+                    type="checkbox"
+                    name="noteTag"
+                    value="reunion"
+                    class="tag-check"
+                  />
+                  <span class="tag-label tag-reunion">
+                    <i class="fas fa-bell"></i> Réunion
+                  </span>
+                </label>
+                <!-- Pour partager des cours -->
+                <label class="tag-option">
+                  <input
+                    type="checkbox"
+                    name="noteTag"
+                    value="cours"
+                    class="tag-check"
+                  />
+                  <span class="tag-label tag-cours">
+                    <i class="fa-graduation-cap"></i> Cours
+                  </span>
+                </label>
+                <!-- Pour les cas d'urgences -->
+                <label class="tag-option">
+                  <input
+                    type="checkbox"
+                    name="noteTag"
+                    value="urgence"
+                    class="tag-check"
+                  />
+                  <span class="tag-label tag-urgence">
+                    <i class="fas fa-bell"></i> Urgence
                   </span>
                 </label>
               </div>
             </div>
+            <div class="form-group">
+              <label class="form-label"> Ajouter une ressource </label>
+
+              <div class="upload-zone">
+                <i class="uil uil-file-upload"></i>
+
+                <p>Déposez votre fichier ici</p>
+
+                <span>PDF, DOCX, PNG ou JPG</span>
+
+                <label class="upload-btn">
+                  Sélectionner un fichier
+
+                  <input type="file" id="attachmentInput" hidden />
+                </label>
+
+                <div id="attachmentPreview"></div>
+              </div>
+            </div>
             <button type="submit" class="submit-btn">
-              Enregistrer le mémo
+              Enregistrer la note
             </button>
           </form>
         </div>
@@ -149,7 +224,7 @@
         <div class="modal confirmation-modal">
           <div class="modal-body">
             <p class="confirmation-text">
-              Êtes-vous sûr de vouloir supprimer ce mémo?
+              Êtes-vous sûr de vouloir supprimer cette note?
             </p>
             <div class="confirmation-buttons">
               <button
@@ -172,6 +247,6 @@
       </div>
     </main>
 
-    <script src="./index.js"></script>
+    <script type="module" src="./js/app.js"></script>
   </body>
 </html>

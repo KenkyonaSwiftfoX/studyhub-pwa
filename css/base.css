@@ -1,0 +1,54 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
+
+:root {
+  --primary: #4f7cff;
+  --primary-dark: #4338ca;
+  --ressources: #7c3aed;
+  --flashcards: #f59e0b;
+  --reunion: #3a86ff;
+  --cours: #00f5d4;
+  --success: #10b981;
+  --danger: #ef4444;
+  --bg: #f8f9fa;
+  --radius: 12px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Montserrat", sans-serif;
+  background-color: var(--bg);
+  color: #333;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.container {
+  min-height: 100vh;
+}
+
+.hidden {
+  display: none;
+}
+
+.fade-in {
+  animation: fadeCard 0.35s ease;
+}
+
+@keyframes fadeCard {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

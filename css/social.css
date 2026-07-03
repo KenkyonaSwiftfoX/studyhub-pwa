@@ -1,0 +1,168 @@
+.note-social {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f1f3f9;
+}
+
+.note-social .note-date {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: #99a1b3;
+  white-space: nowrap;
+}
+
+.note-social button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.note-social button:hover {
+  color: var(--primary);
+}
+
+.note-social i {
+  font-size: 1.1rem;
+}
+
+.reaction-btn,
+.comment-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 999px;
+  background: #f6f7fb;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.reaction-btn:hover {
+  background: #ffeef2;
+  transform: scale(1.08);
+}
+
+.reaction-btn:hover i {
+  color: #ff5a76;
+}
+
+.reaction-btn:active {
+  transform: scale(0.92);
+}
+
+.reaction-btn i {
+  transition: 0.25s;
+}
+
+.comment-btn:hover {
+  background: #eef6ff;
+}
+
+.favorite-btn:hover i {
+  color: #ef4444;
+}
+
+.menu-btn:hover i {
+  color: var(--primary);
+}
+
+.card-menu {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  width: 200px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  z-index: 50;
+}
+
+.card-menu button {
+  width: 100%;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.card-menu button:hover {
+  background: #f5f7fb;
+}
+
+.delete-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #8b95a7;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.delete-btn:hover {
+  background: #ffe8e8;
+  color: #ef4444;
+}
+
+.delete-btn:active {
+  transform: scale(0.95);
+}
+
+.comments-container {
+  margin-top: 18px;
+  border-top: 1px solid #edf1f7;
+  padding-top: 18px;
+}
+
+.comment-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.comment-input {
+  flex: 1;
+  border: none;
+  background: #f6f7fb;
+  border-radius: 14px;
+  padding: 12px 16px;
+  outline: none;
+}
+
+.comment-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.comment-send {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: var(--primary);
+  color: white;
+  transition: 0.25s;
+}
+
+.comment-send:hover {
+  transform: scale(1.08);
+}

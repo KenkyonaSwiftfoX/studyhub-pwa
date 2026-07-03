@@ -1,0 +1,202 @@
+.notes-grid {
+  display: block;
+  column-count: 1;
+  column-gap: 22px;
+  margin-bottom: 30px;
+}
+
+.note-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border: 1px solid #eef1f8;
+  box-shadow: 0 1px 2px rgba(20, 24, 40, 0.04), 0 10px 24px rgba(20, 24, 40, 0.05);
+  cursor: grab;
+  user-select: none;
+  break-inside: avoid;
+  margin: 0 0 22px;
+  max-width: 100%;
+  min-width: 0;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    opacity 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.note-card:active {
+  cursor: grabbing;
+}
+
+.note-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 10px rgba(20, 24, 40, 0.06), 0 20px 40px rgba(20, 24, 40, 0.1);
+}
+
+.note-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  min-width: 0;
+}
+
+/* En-tête façon "auteur" (avatar + nom + heure), inspiré de Padlet */
+.note-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.note-avatar {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  background-color: #e0e7ff;
+  color: var(--primary-dark);
+}
+
+.note-author-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.note-author-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #202124;
+}
+
+.note-time {
+  font-size: 0.78rem;
+  color: #97a0b3;
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.note-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #202124;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.note-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  margin-left: auto;
+}
+
+.note-actions button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.note-actions button:hover {
+  background: #f5f7fb;
+}
+
+.note-actions i {
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+.note-text {
+  color: #565b66;
+  line-height: 1.7;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.note-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.note-file {
+  margin-top: 2px;
+}
+
+.note-attachment {
+  margin-top: 15px;
+}
+
+.pin-btn {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #999;
+}
+
+.pin-btn:hover,
+.note-card.pinned .pin-btn {
+  color: #4f46e5;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  opacity: 0.6;
+  display: none;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  color: #ddd;
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #999;
+  margin-bottom: 20px;
+}
+
+.dragging {
+  opacity: 0.65;
+  transform: rotate(2deg) scale(0.98);
+  cursor: grabbing;
+  transition: transform 0.2s;
+}
+
+.drag-over {
+  outline: 2px dashed var(--primary);
+  outline-offset: 6px;
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}

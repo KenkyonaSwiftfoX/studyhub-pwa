@@ -1,0 +1,49 @@
+@media (min-width: 768px) {
+  .controls-container {
+    flex-direction: row;
+  }
+
+  .notes-grid {
+    column-count: 2;
+  }
+
+  .filter-group {
+    display: flex;
+  }
+
+  .filter-select,
+  .add-btn {
+    width: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .notes-grid {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 1440px) {
+  .notes-grid {
+    column-count: 4;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 14px;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .header p {
+    font-size: 0.95rem;
+  }
+
+  .note-card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+}

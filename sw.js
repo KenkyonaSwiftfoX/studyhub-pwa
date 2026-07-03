@@ -1,55 +1,141 @@
-const CACHE_NAME = "edumemos-v1";
+// sw.js — Service Worker de Study Hub
+// Gère la mise en cache de l'application (offline) et l'installabilité de la PWA.
 
-// Chemins absolus adaptés à ton sous-dossier Alwaysdata
-const ASSETS = [
-  "/edumemos/",
-  "/edumemos/index.html",
-  "/edumemos/style.css",
-  "/edumemos/index.js",
-  "/edumemos/manifest.json",
-  "/edumemos/icons/icon-192.png",
-  "/edumemos/icons/icon-512.png",
-  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
-  "https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap",
+const CACHE_VERSION = "v1";
+const APP_SHELL_CACHE = `study-hub-shell-${CACHE_VERSION}`;
+const RUNTIME_CACHE = `study-hub-runtime-${CACHE_VERSION}`;
+
+// Fichiers essentiels de l'application (même origine) à mettre en cache
+// dès l'installation, pour un fonctionnement 100% hors ligne.
+const APP_SHELL_FILES = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./css/style.css",
+  "./css/base.css",
+  "./css/layout.css",
+  "./css/controls.css",
+  "./css/notes.css",
+  "./css/tags.css",
+  "./css/social.css",
+  "./css/attachments.css",
+  "./css/modals.css",
+  "./css/responsive.css",
+  "./js/app.js",
+  "./js/posts.js",
+  "./js/ui.js",
+  "./js/utils.js",
+  "./js/notifications.js",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
+  "./icons/icon-maskable-192.png",
+  "./icons/icon-maskable-512.png",
+  "./icons/apple-touch-icon.png",
 ];
 
-// 1. Événement d'installation
-self.addEventListener("install", (e) => {
-  e.waitUntil(
+// --- Installation : on précharge l'app shell ---
+self.addEventListener("install", (event) => {
+  event.waitUntil(
     caches
-      .open(CACHE_NAME)
-      .then((cache) => {
-        console.log("Service Worker: Mise en cache des ressources");
-        return cache.addAll(ASSETS);
-      })
-      .then(() => self.skipWaiting()), // Force le SW à devenir actif immédiatement
+      .open(APP_SHELL_CACHE)
+      .then((cache) => cache.addAll(APP_SHELL_FILES))
+      .then(() => self.skipWaiting()),
   );
 });
 
-// 2. Événement d'activation
-self.addEventListener("activate", (e) => {
-  e.waitUntil(
+// --- Activation : on nettoie les anciennes versions de cache ---
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
     caches
       .keys()
-      .then((keys) => {
-        return Promise.all(
-          keys.map((key) => {
-            if (key !== CACHE_NAME) {
-              console.log("Service Worker: Suppression de l'ancien cache", key);
-              return caches.delete(key);
-            }
-          }),
-        );
-      })
-      .then(() => self.clients.claim()), // Prend le contrôle des pages immédiatement
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter(
+              (key) => key !== APP_SHELL_CACHE && key !== RUNTIME_CACHE,
+            )
+            .map((key) => caches.delete(key)),
+        ),
+      )
+      .then(() => self.clients.claim()),
   );
 });
 
-// 3. Stratégie de Fetch
-self.addEventListener("fetch", (e) => {
-  e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      return cachedResponse || fetch(e.request);
+// --- Stratégie "stale-while-revalidate" : sert le cache immédiatement,
+// puis met à jour le cache en arrière-plan avec la version réseau ---
+function staleWhileRevalidate(request, cacheName) {
+  return caches.open(cacheName).then((cache) =>
+    cache.match(request).then((cachedResponse) => {
+      const networkFetch = fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            cache.put(request, networkResponse.clone());
+          }
+          return networkResponse;
+        })
+        .catch(() => cachedResponse);
+
+      return cachedResponse || networkFetch;
     }),
   );
+}
+
+// --- Gestion des requêtes ---
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+
+  // On ne gère que les requêtes GET (POST/PUT ne sont pas mises en cache)
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+
+  // Navigation (chargement de page) : réseau en priorité,
+  // avec repli sur l'app shell en cache si hors ligne.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const copy = response.clone();
+          caches
+            .open(APP_SHELL_CACHE)
+            .then((cache) => cache.put("./index.html", copy));
+          return response;
+        })
+        .catch(
+          () =>
+            caches.match("./index.html") ||
+            caches.match(request) ||
+            new Response(
+              "<h1>Hors ligne</h1><p>Study Hub n'a pas pu charger cette page.</p>",
+              { headers: { "Content-Type": "text/html; charset=UTF-8" } },
+            ),
+        ),
+    );
+    return;
+  }
+
+  // Fichiers de l'application (même origine) : cache d'abord, réseau en secours.
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        return (
+          cached ||
+          fetch(request)
+            .then((response) => {
+              const copy = response.clone();
+              caches
+                .open(APP_SHELL_CACHE)
+                .then((cache) => cache.put(request, copy));
+              return response;
+            })
+            .catch(() => cached)
+        );
+      }),
+    );
+    return;
+  }
+
+  // Ressources externes (polices, icônes CDN) : stale-while-revalidate,
+  // sans jamais bloquer l'installation si elles sont indisponibles.
+  event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE));
 });

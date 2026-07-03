@@ -1,0 +1,101 @@
+.note-tag {
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tag-entraide {
+  background-color: #e0e7ff;
+  color: var(--primary-dark);
+}
+
+.tag-ressources {
+  background-color: #ede9fe;
+  color: var(--ressources);
+}
+
+.tag-infosPromo {
+  background-color: #ecfdf5;
+  color: var(--success);
+}
+
+.tag-flashcards {
+  background-color: #fef3c7;
+  color: var(--flashcards);
+}
+
+.tag-reunion {
+  background-color: #caf0f8;
+  color: var(--reunion);
+}
+
+.tag-cours {
+  background-color: #e8fce6;
+  color: var(--cours);
+}
+
+.tag-urgence {
+  background-color: #fdbad1;
+  color: var(--danger);
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tag-option {
+  position: relative;
+}
+
+.tag-check {
+  position: absolute;
+  opacity: 0;
+}
+
+.tag-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  gap: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tag-check:checked + .tag-label {
+  color: white;
+}
+
+.tag-check:checked + .tag-entraide {
+  background-color: var(--primary);
+}
+
+.tag-check:checked + .tag-ressources {
+  background-color: var(--ressources);
+}
+
+.tag-check:checked + .tag-infosPromo {
+  background-color: var(--success);
+}
+
+.tag-check:checked + .tag-flashcards {
+  background-color: var(--flashcards);
+}
+
+.tag-check:checked + .tag-reunion {
+  background-color: var(--reunion);
+}
+
+.tag-check:checked + .tag-cours {
+  background-color: var(--cours);
+}
+
+.tag-check:checked + .tag-urgence {
+  background-color: var(--danger);
+}
