@@ -60,6 +60,8 @@ export function addComment(postId, comment) {
 
   if (!post) return;
 
+  if (!post.comments) post.comments = [];
+
   post.comments.push({
     id: crypto.randomUUID(),
     author: "Étudiant",
@@ -84,6 +86,8 @@ export function toggleReaction(id) {
   const post = posts.find((post) => post.id === id);
 
   if (!post) return;
+
+  if (!post.reactions) post.reactions = { heart: 0 };
 
   post.reactions.heart++;
 

@@ -192,7 +192,7 @@ id="comments-${note.id}">
     <div
         class="comments-list">
 
-        ${note.comments
+        ${(note.comments || [])
           .map(
             (comment) => `
             <div class="comment">

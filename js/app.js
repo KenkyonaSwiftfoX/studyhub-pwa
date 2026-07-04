@@ -157,11 +157,16 @@ document.addEventListener("DOMContentLoaded", function () {
   // Confirmation finale de la suppression
   function confirmDeleteNote() {
     if (noteToDeleteId !== null) {
+      const deletedNote = getPostById(noteToDeleteId);
       removePost(noteToDeleteId);
       notes = getPosts(); // Resynchronisation locale
       refreshUI();
       closeModal(confirmModal);
       noteToDeleteId = null;
+      showNotification(
+        "Note supprimée",
+        deletedNote ? deletedNote.title : "Une note a été supprimée.",
+      );
     }
   }
 
@@ -323,6 +328,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
       toggleComments(postId); // Ré-ouvre ou maintient la zone affichée
 
+      const commentedPost = getPostById(postId);
+      showNotification(
+        "Nouveau commentaire",
+        commentedPost ? `Sur « ${commentedPost.title} »` : text,
+      );
+
       return;
     }
 
@@ -446,4 +457,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // Rendu de démarrage initial
   refreshUI();
   requestNotificationPermission();
+
+  // Notifie l'utilisateur des changements de connectivité (pertinent pour une PWA)
+  window.addEventListener("online", () => {
+    showNotification("Connexion rétablie", "Vous êtes de nouveau en ligne.");
+  });
+  window.addEventListener("offline", () => {
+    showNotification(
+      "Mode hors ligne",
+      "Vous êtes hors ligne, Study Hub reste utilisable.",
+    );
+  });
 });

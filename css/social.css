@@ -132,6 +132,55 @@
   padding-top: 18px;
 }
 
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.comment {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.comment-avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f0f2f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
+.comment-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-content strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #202124;
+  margin-bottom: 2px;
+}
+
+.comment-content p {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.comment-content small {
+  font-size: 0.75rem;
+  color: #97a0b3;
+}
+
 .comment-form {
   display: flex;
   gap: 10px;

@@ -1,7 +1,7 @@
 // sw.js — Service Worker de Study Hub
 // Gère la mise en cache de l'application (offline) et l'installabilité de la PWA.
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v3";
 const APP_SHELL_CACHE = `study-hub-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `study-hub-runtime-${CACHE_VERSION}`;
 
