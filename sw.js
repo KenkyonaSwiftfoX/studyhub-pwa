@@ -1,7 +1,7 @@
 // sw.js — Service Worker de Study Hub
 // Gère la mise en cache de l'application (offline) et l'installabilité de la PWA.
 
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v24";
 const APP_SHELL_CACHE = `study-hub-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `study-hub-runtime-${CACHE_VERSION}`;
 
@@ -21,7 +21,11 @@ const APP_SHELL_FILES = [
   "./css/attachments.css",
   "./css/modals.css",
   "./css/responsive.css",
+  "./css/auth.css",
+  "./css/theme.css",
   "./js/app.js",
+  "./js/auth.js",
+  "./js/i18n.js",
   "./js/posts.js",
   "./js/ui.js",
   "./js/utils.js",
@@ -89,6 +93,9 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
+  // NE JAMAIS intercepter ou mettre en cache les requêtes de l'API backend PHP/SQLite
+  if (url.pathname.includes("/api/") || url.pathname.endsWith(".php") || url.search.includes("_t=")) return;
+
   // Navigation (chargement de page) : réseau en priorité,
   // avec repli sur l'app shell en cache si hors ligne.
   if (request.mode === "navigate") {
@@ -104,6 +111,7 @@ self.addEventListener("fetch", (event) => {
         .catch(
           () =>
             caches.match("./index.html") ||
+            caches.match("./") ||
             caches.match(request) ||
             new Response(
               "<h1>Hors ligne</h1><p>Study Hub n'a pas pu charger cette page.</p>",
@@ -114,23 +122,18 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Fichiers de l'application (même origine) : cache d'abord, réseau en secours.
+  // Fichiers de l'application (même origine) : Network First (avec repli cache si hors ligne)
   if (url.origin === self.location.origin) {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        return (
-          cached ||
-          fetch(request)
-            .then((response) => {
-              const copy = response.clone();
-              caches
-                .open(APP_SHELL_CACHE)
-                .then((cache) => cache.put(request, copy));
-              return response;
-            })
-            .catch(() => cached)
-        );
-      }),
+      fetch(request)
+        .then((response) => {
+          const copy = response.clone();
+          caches
+            .open(APP_SHELL_CACHE)
+            .then((cache) => cache.put(request, copy));
+          return response;
+        })
+        .catch(() => caches.match(request)),
     );
     return;
   }

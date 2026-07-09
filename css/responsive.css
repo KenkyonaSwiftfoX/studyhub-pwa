@@ -1,6 +1,8 @@
 @media (min-width: 768px) {
   .controls-container {
     flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .notes-grid {
@@ -34,11 +36,11 @@
     padding: 14px;
   }
 
-  .header h1 {
-    font-size: 2rem;
+  .main-title {
+    font-size: 2.2rem;
   }
 
-  .header p {
+  .header-subtitle {
     font-size: 0.95rem;
   }
 

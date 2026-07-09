@@ -17,6 +17,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Study Hub" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link
       rel="stylesheet"
       href="https://unicons.iconscout.com/release/v4.2.0/css/line.css"
@@ -26,25 +32,161 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/auth.css" />
+    <link rel="stylesheet" href="./css/theme.css" />
   </head>
 
   <body>
+    <!-- Barre d'utilitaires en haut à droite (Langue FR / EN / RUS + Thème Sombre/Clair) -->
+    <div class="top-utilities">
+      <div class="lang-switcher">
+        <button type="button" class="lang-btn active" data-lang="fr">FR</button>
+        <button type="button" class="lang-btn" data-lang="en">ENG</button>
+        <button type="button" class="lang-btn" data-lang="ru">RUS</button>
+      </div>
+      <button
+        type="button"
+        id="themeToggleBtn"
+        class="theme-toggle-btn"
+        title="Changer de thème"
+      >
+        <i id="themeIcon" class="uil uil-moon"></i>
+      </button>
+    </div>
+
     <main class="container">
       <header class="header">
-        <h1>STUDY HUB</h1>
-        <p>
-          Le babillard d’entraide de ta promo - En temps réel - Disponible hors
-          ligne
+        <h1 class="main-title">
+          STUDY <span class="title-highlight">HUB</span>
+        </h1>
+        <p class="header-subtitle" data-i18n="appSubtitle">
+          Le babillard d’entraide de ta promo — En temps réel — Disponible hors ligne
         </p>
+        <div id="userProfileBadge" class="user-profile-badge hidden" style="margin-top: 14px;">
+          <span id="userProfileName" class="user-profile-name"></span>
+          <button id="logoutBtn" class="logout-btn" type="button" data-i18n="logoutBtn">
+            Se déconnecter
+          </button>
+        </div>
       </header>
 
-      <section class="controls" aria-label="Recherche et filtres">
+      <!-- Écran d'authentification PWA -->
+      <section id="authContainer" class="auth-wrapper">
+        <div class="auth-card">
+          <div class="auth-header">
+            <h2 class="auth-title" data-i18n="authTitle">Espace Étudiant</h2>
+            <p class="auth-subtitle" data-i18n="authSubtitle">Connectez-vous ou rejoignez la promotion</p>
+          </div>
+
+          <div class="auth-tabs">
+            <button id="tabLogin" class="auth-tab-btn active" type="button" data-i18n="tabLogin">
+              Connexion
+            </button>
+            <button id="tabRegister" class="auth-tab-btn" type="button" data-i18n="tabRegister">
+              Inscription
+            </button>
+          </div>
+
+          <div id="authMessage" class="auth-message"></div>
+
+          <!-- Formulaire de Connexion -->
+          <form id="loginForm" class="auth-form">
+            <div class="auth-input-group">
+              <label class="auth-label" for="loginUsername" data-i18n="labelUsername">Nom d'utilisateur</label>
+              <div class="auth-input-wrapper">
+                <i class="uil uil-user auth-input-icon"></i>
+                <input
+                  type="text"
+                  id="loginUsername"
+                  class="auth-input"
+                  placeholder="ex: alexandre"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="auth-input-group">
+              <label class="auth-label" for="loginPassword" data-i18n="labelPassword">Mot de passe</label>
+              <div class="auth-input-wrapper">
+                <i class="uil uil-padlock auth-input-icon"></i>
+                <input
+                  type="password"
+                  id="loginPassword"
+                  class="auth-input"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+            </div>
+
+            <button type="submit" class="auth-submit-btn" data-i18n="btnSubmitLogin">
+              Se connecter
+            </button>
+          </form>
+
+          <!-- Formulaire d'Inscription -->
+          <form id="registerForm" class="auth-form hidden">
+            <div class="auth-input-group">
+              <label class="auth-label" for="regUsername" data-i18n="labelUsername">Nom d'utilisateur</label>
+              <div class="auth-input-wrapper">
+                <i class="uil uil-user auth-input-icon"></i>
+                <input
+                  type="text"
+                  id="regUsername"
+                  class="auth-input"
+                  placeholder="ex: alexandre"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="auth-input-group">
+              <label class="auth-label" for="regPassword" data-i18n="labelPassword">Mot de passe</label>
+              <div class="auth-input-wrapper">
+                <i class="uil uil-padlock auth-input-icon"></i>
+                <input
+                  type="password"
+                  id="regPassword"
+                  class="auth-input"
+                  placeholder="Au moins 4 caractères"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="auth-input-group">
+              <label class="auth-label" for="regInviteCode">
+                <span data-i18n="labelInviteCode">Code d'accès promo</span>
+              </label>
+              <div class="auth-input-wrapper">
+                <i class="uil uil-key-skeleton auth-input-icon"></i>
+                <input
+                  type="text"
+                  id="regInviteCode"
+                  class="auth-input"
+                  placeholder="Saisissez le code promo"
+                  required
+                />
+              </div>
+            </div>
+
+            <button type="submit" class="auth-submit-btn" data-i18n="btnSubmitRegister">
+              Rejoindre Study Hub
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Contenu de l'application STUDY HUB (masqué par défaut si non connecté) -->
+      <div id="appContainer" class="hidden">
+        <section class="controls" aria-label="Recherche et filtres">
         <div class="controls-container">
           <input
             type="text"
             id="searchInput"
-            placeholder="Rechercher une aide ou un sujet..."
+            placeholder="Rechercher par titre, tag ou auteur..."
             class="search-input"
+            data-i18n="searchPlaceholder"
           />
           <div class="filter-group">
             <select id="filterSelect" class="filter-select">
@@ -58,7 +200,7 @@
               <option value="urgence">Urgence</option>
             </select>
             <button type="button" id="addNoteBtn" class="add-btn">
-              <i class="fas fa-plus"></i> Partager
+              <i class="fas fa-plus"></i> <span data-i18n="btnNewNote">Partager</span>
             </button>
           </div>
         </div>
@@ -245,7 +387,22 @@
           </div>
         </div>
       </div>
+      </div>
     </main>
+
+    <footer class="app-footer">
+      <p>
+        LPDWCA 2025-2026 —
+        <a
+          href="https://developpement-web-communication-apprentissages.fr/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="footer-link"
+        >
+          Université de Strasbourg
+        </a>
+      </p>
+    </footer>
 
     <script type="module" src="./js/app.js"></script>
   </body>

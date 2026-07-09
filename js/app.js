@@ -1,4 +1,9 @@
-// js/app.js
+/**
+ * js/app.js — Contrôleur principal de l'application Study Hub (PWA Monopage)
+ * Orchestre l'interaction entre les modules d'authentification (auth.js),
+ * de gestion des données (posts.js), d'interface utilisateur (ui.js),
+ * d'internationalisation et thème (i18n.js) et les notifications Push (notifications.js).
+ */
 import {
   loadPosts,
   getPosts,
@@ -12,46 +17,25 @@ import {
 } from "./posts.js";
 
 import { renderNotes, updateEmptyState } from "./ui.js";
-import { openModal, closeModal } from "./utils.js";
+import { openModal, closeModal, generateUUID } from "./utils.js";
 import {
   requestNotificationPermission,
   showNotification,
 } from "./notifications.js";
+import { initAuth } from "./auth.js";
+import { initI18nAndTheme } from "./i18n.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Study Hub chargé");
 
-  // Enregistrement du Service Worker
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-      .register("./sw.js")
-      .then((reg) => console.log("Service Worker enregistré :", reg.scope))
-      .catch((err) =>
-        console.error("Échec de l'enregistrement du Service Worker :", err),
-      );
-  }
-
-  // Chargement initial des données locales
-  loadPosts();
-  let notes = getPosts();
-  let noteToDeleteId = null; // Contiendra l'ID textuel unique (UUID)
-  let selectedAttachment = null;
-  let editingNoteId = null; // ID de la note en cours de modification (null = création)
-
-  // Variable pour le drag & drop
-  let draggedCardId = null;
-
-  // Variable globale
-  let dragOverCard = null;
-
-  // Ciblage des éléments du DOM
+  // 1. Ciblage des éléments du DOM en TOUT PREMIER pour éviter ReferenceError dans initAuth
   const notesContainer = document.getElementById("notesContainer");
   const addNoteBtn = document.getElementById("addNoteBtn");
   const addNoteModal = document.getElementById("addNoteModal");
   const closeModalBtn = document.getElementById("closeModalBtn");
   const noteForm = document.getElementById("noteForm");
   const modalTitle = document.querySelector("#addNoteModal .modal-title");
-  const submitBtn = noteForm.querySelector(".submit-btn");
+  const submitBtn = noteForm ? noteForm.querySelector(".submit-btn") : null;
 
   const attachmentInput = document.getElementById("attachmentInput");
   const attachmentPreview = document.getElementById("attachmentPreview");
@@ -64,13 +48,57 @@ document.addEventListener("DOMContentLoaded", function () {
   const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
   const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
 
+  // Initialisation Langue & Thème
+  initI18nAndTheme();
+
+  // Enregistrement du Service Worker
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .register("./sw.js")
+      .then((reg) => {
+        console.log("Service Worker enregistré :", reg.scope);
+        reg.update();
+      })
+      .catch((err) =>
+        console.error("Échec de l'enregistrement du Service Worker :", err),
+      );
+  }
+
+  // Initialisation de l'authentification PWA
+  initAuth({
+    onLoginSuccess: (user) => {
+      showNotification("Bienvenue !", `Connecté en tant que ${user.username}`);
+      refreshUI();
+    },
+    onLogout: () => {
+      showNotification("Déconnexion", "À bientôt sur Study Hub !");
+    },
+  });
+
+  // Chargement initial des données locales + synchronisation serveur
+  loadPosts();
+  let notes = getPosts();
+  window.addEventListener("postsUpdated", () => {
+    notes = getPosts();
+    refreshUI();
+  });
+  let noteToDeleteId = null; // Contiendra l'ID textuel unique (UUID)
+  let selectedAttachment = null;
+  let editingNoteId = null; // ID de la note en cours de modification (null = création)
+
+  // Variable pour le drag & drop
+  let draggedCardId = null;
+
+  // Variable globale
+  let dragOverCard = null;
+
   // Réinitialise la modale (mode création par défaut)
   function resetNoteModalState() {
     editingNoteId = null;
     selectedAttachment = null;
-    attachmentPreview.innerHTML = "";
-    modalTitle.textContent = "Nouvelle note";
-    submitBtn.textContent = "Enregistrer la note";
+    if (attachmentPreview) attachmentPreview.innerHTML = "";
+    if (modalTitle) modalTitle.textContent = "Nouvelle note";
+    if (submitBtn) submitBtn.textContent = "Enregistrer la note";
   }
 
   // Gestion du drag & drop
@@ -80,12 +108,30 @@ document.addEventListener("DOMContentLoaded", function () {
     e.currentTarget.classList.add("dragging");
   }
 
+  // Moteur de recherche et filtrage combiné
+  function getFilteredNotes() {
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+    const filterValue = filterSelect ? filterSelect.value : "all";
+    let filtered = getPosts() || [];
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (n) =>
+          (n.title && n.title.toLowerCase().includes(searchTerm)) ||
+          (n.content && n.content.toLowerCase().includes(searchTerm)),
+      );
+    }
+    if (filterValue !== "all") {
+      filtered = filtered.filter((n) => n.tags && n.tags.includes(filterValue));
+    }
+    return filtered;
+  }
+
   // Fonction globale de rafraîchissement de l'interface
-  function refreshUI(notesToDisplay = notes) {
+  function refreshUI(notesToDisplay = getFilteredNotes()) {
     renderNotes(
       notesContainer,
       notesToDisplay,
-      handleDeleteClick,
       handleDragStart,
       handleDragOver,
       handleDrop,
@@ -170,24 +216,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Moteur de recherche et filtrage combiné
+  // Filtre et met à jour l'affichage
   function filterNotes() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const filterValue = filterSelect.value;
-    let filtered = notes;
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (n) =>
-          n.title.toLowerCase().includes(searchTerm) ||
-          n.content.toLowerCase().includes(searchTerm),
-      );
-    }
-    if (filterValue !== "all") {
-      filtered = filtered.filter((n) => n.tags && n.tags.includes(filterValue));
-    }
-
-    refreshUI(filtered);
+    refreshUI(getFilteredNotes());
   }
 
   // Déploiement de la zone de commentaires
@@ -211,9 +242,10 @@ document.addEventListener("DOMContentLoaded", function () {
       ? [
           {
             name: selectedAttachment.name,
-            size: selectedAttachment.isExisting
+            size: selectedAttachment.isExisting || typeof selectedAttachment.size === "string"
               ? selectedAttachment.size
               : `${(selectedAttachment.size / 1024).toFixed(1)} Ko`,
+            url: selectedAttachment.dataUrl || selectedAttachment.url || null,
           },
         ]
       : [];
@@ -241,9 +273,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Mode création : nouvelle note
     const post = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       title,
       content,
+      author: window.currentUser ? window.currentUser.username : "Étudiant promo",
       tags: selectedTags.length ? selectedTags : ["infosPromo"],
       createdAt: new Date().toISOString(),
       favorite: false,
@@ -262,9 +295,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Écouteurs d'événements structurels (Modales, Filtres)
-  addNoteBtn.addEventListener("click", () => {
+  addNoteBtn.addEventListener("click", (e) => {
+    if (e) e.preventDefault();
     resetNoteModalState();
-    noteForm.reset();
+    if (noteForm) noteForm.reset();
     openModal(addNoteModal);
   });
   closeModalBtn.addEventListener("click", () => {
@@ -274,7 +308,54 @@ document.addEventListener("DOMContentLoaded", function () {
   cancelDeleteBtn.addEventListener("click", () => closeModal(confirmModal));
   confirmDeleteBtn.addEventListener("click", confirmDeleteNote);
 
-  searchInput.addEventListener("input", filterNotes);
+  // Fermeture des modales par clic sur le fond ou touche Échap
+  [addNoteModal, confirmModal].forEach((modal) => {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        if (modal === addNoteModal) {
+          closeModal(addNoteModal, noteForm);
+          resetNoteModalState();
+        } else {
+          closeModal(confirmModal);
+        }
+      }
+    });
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (addNoteModal.classList.contains("active")) {
+        closeModal(addNoteModal, noteForm);
+        resetNoteModalState();
+      } else if (confirmModal.classList.contains("active")) {
+        closeModal(confirmModal);
+      }
+    }
+  });
+
+  function adjustSearchInputWidth() {
+    if (window.innerWidth >= 768) {
+      const charLen = searchInput.value.length;
+      if (charLen > 10) {
+        const newWidth = Math.min(480, Math.max(240, charLen * 9 + 80));
+        searchInput.style.width = `${newWidth}px`;
+      } else if (document.activeElement === searchInput) {
+        searchInput.style.width = "250px";
+      } else {
+        searchInput.style.width = "180px";
+      }
+    } else {
+      searchInput.style.width = "100%";
+    }
+  }
+
+  searchInput.addEventListener("input", () => {
+    filterNotes();
+    adjustSearchInputWidth();
+  });
+  searchInput.addEventListener("focus", adjustSearchInputWidth);
+  searchInput.addEventListener("blur", adjustSearchInputWidth);
+  window.addEventListener("resize", adjustSearchInputWidth);
   filterSelect.addEventListener("change", filterNotes);
 
   // Délégation d'événements unique sur le conteneur des cartes de notes
@@ -414,6 +495,17 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       return;
     }
+
+    // 7. Bouton Supprimer (menu contextuel)
+    const deleteBtn = e.target.closest(".delete-btn");
+    if (deleteBtn) {
+      const id = deleteBtn.dataset.id;
+      const menu = document.getElementById(`menu-${id}`);
+      if (menu) menu.classList.add("hidden");
+      noteToDeleteId = id;
+      openModal(confirmModal);
+      return;
+    }
   });
 
   // Fermeture des petits menus contextuels lors d'un clic à côté
@@ -425,33 +517,76 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Gestion des pièces jointes à l'importation de fichiers
+  // Gestion des pièces jointes à l'importation de fichiers (avec compression d'image pour ne jamais dépasser le quota)
   attachmentInput.addEventListener("change", () => {
     const file = attachmentInput.files[0];
     if (!file) return;
 
-    selectedAttachment = file;
-    const size = (file.size / 1024).toFixed(1);
+    const isImage = file.type.startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(file.name);
 
-    attachmentPreview.innerHTML = `
-      <div class="attachment-card">
-          <i class="uil uil-file"></i>
-          <div class="attachment-info">
-              <strong>${file.name}</strong>
-              <small>${size} Ko</small>
-          </div>
-          <button id="removeAttachment" class="attachment-remove" type="button">
-              <i class="uil uil-times"></i>
-          </button>
-      </div>`;
+    const updatePreview = (dataUrl, displaySizeKo) => {
+      selectedAttachment = {
+        name: file.name,
+        size: displaySizeKo ? `${displaySizeKo} Ko` : `${(file.size / 1024).toFixed(1)} Ko`,
+        dataUrl: dataUrl,
+      };
 
-    document
-      .getElementById("removeAttachment")
-      .addEventListener("click", () => {
-        selectedAttachment = null;
-        attachmentInput.value = "";
-        attachmentPreview.innerHTML = "";
-      });
+      const sizeKo = displaySizeKo || (file.size / 1024).toFixed(1);
+      attachmentPreview.innerHTML = `
+        <div class="attachment-card">
+            <i class="uil uil-file"></i>
+            <div class="attachment-info">
+                <strong>${escapeHtml(file.name)}</strong>
+                <small>${sizeKo} Ko</small>
+            </div>
+            <button id="removeAttachment" class="attachment-remove" type="button">
+                <i class="uil uil-times"></i>
+            </button>
+        </div>`;
+
+      document
+        .getElementById("removeAttachment")
+        .addEventListener("click", () => {
+          selectedAttachment = null;
+          attachmentInput.value = "";
+          attachmentPreview.innerHTML = "";
+        });
+    };
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const rawDataUrl = e.target.result;
+      if (isImage) {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 1200;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressedUrl = canvas.toDataURL("image/jpeg", 0.75);
+          const approxKo = Math.round((compressedUrl.length * 0.75) / 1024);
+          updatePreview(compressedUrl, approxKo);
+        };
+        img.onerror = () => updatePreview(rawDataUrl);
+        img.src = rawDataUrl;
+      } else {
+        updatePreview(rawDataUrl);
+      }
+    };
+    reader.readAsDataURL(file);
   });
 
   // Rendu de démarrage initial

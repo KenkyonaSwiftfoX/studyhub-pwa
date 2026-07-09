@@ -1,17 +1,74 @@
 .header {
   text-align: center;
   margin-bottom: 44px;
-  padding-top: 8px;
+  padding-top: 14px;
 }
 
-.header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(79, 124, 255, 0.1);
   color: var(--primary);
-  margin-bottom: 10px;
+  border: 1px solid rgba(79, 124, 255, 0.22);
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 10px rgba(79, 124, 255, 0.08);
 }
 
-.header p {
-  font-size: 1.1rem;
-  color: #666;
+.main-title {
+  font-family: "Outfit", sans-serif;
+  font-size: 3.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-main, #0f172a);
+  margin-bottom: 12px;
+  line-height: 1.1;
+}
+
+.title-highlight {
+  background: linear-gradient(135deg, #4f7cff 0%, #7c3aed 55%, #00f5d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  text-shadow: 0 10px 30px rgba(79, 124, 255, 0.15);
+}
+
+.header-subtitle {
+  font-size: 1.12rem;
+  color: #475569;
+  font-weight: 500;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* Footer sticky au bas et au centre de la page (compact) */
+.app-footer {
+  text-align: center;
+  margin-top: auto;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  font-size: 0.82rem;
+  color: var(--text-muted, #64748b);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.25s ease, text-decoration 0.25s ease;
+}
+
+.footer-link:hover {
+  color: var(--ressources);
+  text-decoration: underline;
 }

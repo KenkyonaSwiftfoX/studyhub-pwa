@@ -62,6 +62,15 @@
   transition: 0.25s;
 }
 
+.reaction-btn.liked {
+  background: #ffeef2;
+  color: #ff5a76;
+}
+
+.reaction-btn.liked i {
+  color: #ff5a76;
+}
+
 .comment-btn:hover {
   background: #eef6ff;
 }
