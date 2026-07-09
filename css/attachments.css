@@ -98,3 +98,31 @@
 .attachment-remove:hover {
   color: #ef4444;
 }
+
+a.attachment-card {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+a.attachment-card:hover {
+  border-color: var(--primary);
+  background: #f0f4ff;
+}
+
+.attachment-image-preview {
+  display: block;
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #edf1f7;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.attachment-image-preview:hover {
+  opacity: 0.95;
+  transform: scale(1.01);
+}

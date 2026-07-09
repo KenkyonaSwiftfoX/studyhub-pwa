@@ -2,7 +2,7 @@
   "name": "Study Hub - Babillard Collaboratif",
   "short_name": "Study Hub",
   "description": "Le babillard d'entraide collaboratif de ta promo : ressources, entraide, annonces et flashcards, disponible hors ligne.",
-  "id": "/index.html",
+  "id": "./index.html",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
